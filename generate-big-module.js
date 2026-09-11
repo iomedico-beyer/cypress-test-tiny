@@ -32,7 +32,8 @@ for (let m = 0; m < MODULES; m++) {
 
 /*
  * Every module is imported as a namespace and put into an array the spec reads, so that no part
- * of the graph can be dropped as unused.
+ * of the graph can be dropped as unused. "megabytes" rides along so the spec can name the size it
+ * was built with in the runner output.
  */
 const imports = []
 const names = []
@@ -40,9 +41,10 @@ for (let m = 0; m < MODULES; m++) {
    imports.push(`import * as ${name(m)} from "./${name(m)}.js"`)
    names.push(name(m))
 }
-fs.writeFileSync(path.join(dir, "index.js"), imports.join("\n") + "\n\nexport const modules = [\n   " + names.join(",\n   ") + ",\n]\n")
+fs.writeFileSync(
+   path.join(dir, "index.js"),
+   imports.join("\n") + `\n\nexport const megabytes = ${megabytes}\n\nexport const modules = [\n   ` + names.join(",\n   ") + ",\n]\n",
+)
 
-const bytes = fs
-   .readdirSync(dir)
-   .reduce((sum, f) => sum + fs.statSync(path.join(dir, f)).size, 0)
+const bytes = fs.readdirSync(dir).reduce((sum, f) => sum + fs.statSync(path.join(dir, f)).size, 0)
 console.log(`generated ${MODULES} modules in ./big, ${(bytes / 1024 / 1024).toFixed(1)} MB of JavaScript`)
