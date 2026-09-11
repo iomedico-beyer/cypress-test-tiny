@@ -45,8 +45,17 @@ path, so the bug cannot appear there at all.
   interrupted and resumed.
 
 ```
-node sweep.js                                    1..80 MB in steps of 1
-SWEEP_SIZES=5,10,15,16,17 node sweep.js          exactly these sizes
+node sweep.js                                # 1..80 MB in steps of 1
+SWEEP_START=20 SWEEP_END=30 node sweep.js    # a range
+SWEEP_SIZES=5,10,15,16,17 node sweep.js      # exactly these sizes
+```
+
+It prints one line per size. While a size is bundling nothing moves on the console for minutes;
+each run's own Cypress output goes to a file of its own, which is where to watch:
+
+```
+tail -f sweep-logs/sweep-045mb.log     # the run currently in progress
+tail -f sweep-results.csv              # the verdicts as they land
 ```
 
 ## Measured here
