@@ -10,6 +10,7 @@
  *    node sweep.js                                  1..80 MB in steps of 1
  *    SWEEP_START=15 SWEEP_END=30 node sweep.js      a range
  *    SWEEP_SIZES=5,10,15,16,17 node sweep.js        exactly these sizes
+ *    SWEEP_TWO_BYTE=1 node sweep.js                 generated with --two-byte
  *
  * Results are appended to sweep-results.csv after every size, and sizes already in that file are
  * skipped, so the sweep can be interrupted and resumed. Each run's full output is kept under
@@ -121,7 +122,8 @@ async function main() {
          console.log(`${stamp()}  ${String(mb).padStart(3)} MB  ${done.get(mb)} (already measured, skipped)`)
          continue
       }
-      execFileSync(process.execPath, [path.join(__dirname, "generate-big-module.js"), String(mb)], { stdio: "ignore" })
+      const generate = [path.join(__dirname, "generate-big-module.js"), String(mb), ...(process.env.SWEEP_TWO_BYTE ? ["--two-byte"] : [])]
+      execFileSync(process.execPath, generate, { stdio: "ignore" })
       process.stdout.write(`${stamp()}  ${String(mb).padStart(3)} MB  running ... `)
       const { result, seconds } = await runOnce(mb)
       console.log(`${result} (${seconds}s)`)

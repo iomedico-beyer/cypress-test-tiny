@@ -16,7 +16,7 @@
   "author": "Cypress-io",
   "license": "ISC",
   "devDependencies": {
-    "cypress": "16.0.0"
+    "cypress": "16.2.1"
   },
   "repository": {
     "type": "git",

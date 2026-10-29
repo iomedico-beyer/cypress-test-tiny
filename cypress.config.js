@@ -1,7 +1,7 @@
 module.exports = {
   /*
-   * Pin the browser. A plain "npx cypress run" would otherwise take the bundled Electron, which
-   * keeps the legacy network path and therefore never shows this bug at all.
+   * Pin the browser to Chrome, where everything in the README was measured. A plain
+   * "npx cypress run" would otherwise take the bundled Electron.
    */
   defaultBrowser: 'chrome',
   e2e: {

@@ -1,6 +1,7 @@
 /*
  * Generates ./big/, a module graph of plain JavaScript whose only purpose is to make the spec
- * bundle large. Size in megabytes as the first argument, 45 by default.
+ * bundle large. Size in megabytes as the first argument, 45 by default; --two-byte adds a single
+ * character above U+00FF (see below).
  *
  * It is generated rather than committed so this repository stays small; run "npm run generate"
  * before "npm run cypress:run".
@@ -8,7 +9,13 @@
 const fs = require("fs")
 const path = require("path")
 
-const megabytes = Number(process.argv[2] || 45)
+const megabytes = Number(process.argv.slice(2).find((arg) => !arg.startsWith("--")) || 45)
+/*
+ * --two-byte puts a single character above U+00FF into the bundle. That alone makes V8 hold every copy
+ * of the bundle text, and of its decoded source map, as a two-byte string, as it does for projects whose
+ * sources contain such characters anywhere.
+ */
+const twoByte = process.argv.includes("--two-byte")
 const MODULES = 300
 const dir = path.join(__dirname, "big")
 const name = (m) => "mod" + String(m).padStart(4, "0")
@@ -43,8 +50,12 @@ for (let m = 0; m < MODULES; m++) {
 }
 fs.writeFileSync(
    path.join(dir, "index.js"),
-   imports.join("\n") + `\n\nexport const megabytes = ${megabytes}\n\nexport const modules = [\n   ` + names.join(",\n   ") + ",\n]\n",
+   (twoByte ? "/* a two-byte bundle: “ */\n" : "") +
+      imports.join("\n") +
+      `\n\nexport const megabytes = ${megabytes}\n\nexport const modules = [\n   ` +
+      names.join(",\n   ") +
+      ",\n]\n",
 )
 
 const bytes = fs.readdirSync(dir).reduce((sum, f) => sum + fs.statSync(path.join(dir, f)).size, 0)
-console.log(`generated ${MODULES} modules in ./big, ${(bytes / 1024 / 1024).toFixed(1)} MB of JavaScript`)
+console.log(`generated ${MODULES} modules in ./big, ${(bytes / 1024 / 1024).toFixed(1)} MB of JavaScript${twoByte ? ", two-byte" : ""}`)
