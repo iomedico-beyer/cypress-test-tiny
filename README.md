@@ -40,9 +40,9 @@ Chrome.
 ### Why `--two-byte`
 
 It puts a single “ into the bundle. That alone makes V8 hold every copy of the bundle text, and of
-the decoded source map, as a two-byte string – as it does for any project with a non-ASCII
-character anywhere in its sources (ours has umlauts and typographic quotes). It is also what makes
-the regression visible: a two-byte first load leaves about 2.9 GB behind in the renderer, a pure
+the decoded source map, as a two-byte string – as it does for any project with a single character
+above U+00FF anywhere in its sources (in ours, typographic quotes in comments; Latin-1 letters such
+as umlauts still fit into one byte). It is also what makes the regression visible: a two-byte first load leaves about 2.9 GB behind in the renderer, a pure
 ASCII one about 1.3 GB, and with pure ASCII the window in which only 15.0.0 and later crash is
 narrow (see below).
 
@@ -103,6 +103,6 @@ Our real suite generates a TypeScript API per clinical study, bundled with
 of the larger ones hung in its first `cy.visit()` – that was cypress-io/cypress#34794, reproduced on
 the branch `visit-hangs-with-large-spec-bundle` of this repository and fixed in 16.2.1. With the
 fix, the specs importing the very largest API still hung at the same spot, and the renderer was
-gone: a 189 MB bundle with 92 MB of source map, two-byte because of umlauts and typographic quotes
-in its sources. Our workaround leaves the generated sources out of the map and prints them without
+gone: a 189 MB bundle with 92 MB of source map, two-byte because of typographic quotes and a few
+other characters above U+00FF in its sources. Our workaround leaves the generated sources out of the map and prints them without
 comments, which brought that bundle down to 48 MB.
